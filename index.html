@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小草的博客</title>
+    <link rel="icon" href="https://s21.ax1x.com/2025/08/28/pV660mT.png" type="image/png">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            margin: 0;
+            padding: 0;
+            color: #24292e;
+            background-color: #fff;
+        }
+        
+        header {
+            background-color: #24292e;
+            color: white;
+            padding: 16px 0;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        nav {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 24px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.125);
+        }
+        
+        .nav-links a.active {
+            font-weight: 600;
+            background-color: rgba(255, 255, 255, 0.125);
+        }
+        
+        main {
+            padding: 40px 0;
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eaecef;
+        }
+        
+        .markdown-preview {
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">小草的博客</div>
+                <div class="nav-links">
+                    <a href="/" class="active">主页</a>
+                    <a href="/blog">博客</a>
+                    <a href="/docs">文档</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        <h1>欢迎来到小草的博客</h1>
+        <p>这是一个简单的个人博客站点，使用HTML和CSS构建，模仿GitHub的风格。</p>
+        
+        <div class="markdown-preview">
+            <h2>最新博客</h2>
+            <div id="latest-post"></div>
+        </div>
+    </main>
+    
+    <script>
+        // 模拟从服务器获取最新博客
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/blog/index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const posts = doc.querySelectorAll('.post');
+                    
+                    if (posts.length > 0) {
+                        const latestPost = posts[0].cloneNode(true);
+                        document.getElementById('latest-post').appendChild(latestPost);
+                    }
+                })
+                .catch(error => {
+                    console.error('获取最新博客失败:', error);
+                    document.getElementById('latest-post').innerHTML = 
+                        '<p>暂时无法加载最新博客，请直接访问<a href="/blog">博客页面</a>。</p>';
+                });
+        });
+    </script>
+</body>
+</html>
