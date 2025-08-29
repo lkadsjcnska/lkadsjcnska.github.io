@@ -1,0 +1,20 @@
+# 站点元数据
+title: "小草的博客"
+email: "nonenan975@gmail.com"
+description: "这是一个使用 Jekyll 的 GitHub Pages 站点。"
+baseurl: "" # 子路径（如 /blog），如果站点部署在根目录则留空
+url: "https://lkadsjcnska.github.io" # 站点域名
+
+# GitHub Pages 强制要求的插件（用于 Markdown 转换）
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# 主题配置（内置或远程）
+# theme: jekyll-theme-minimal
+# 或使用远程主题：
+remote_theme: pages-themes/minimal@v0.2.0
+
+# 其他自定义配置
+markdown: kramdown
+highlighter: rouge
