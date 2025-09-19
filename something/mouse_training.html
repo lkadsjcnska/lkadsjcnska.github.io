@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鼠标训练</title>
+    <link rel="icon" href="https://s21.ax1x.com/2025/08/28/pV660mT.png" type="image/png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>鼠标训练</h1>
+            <nav>
+                <a href="index.html">返回主页</a>
+            </nav>
+        </header>
+        
+        <div class="training-area">
+            <div class="stats">
+                <div>单击: <span id="click-count">0</span></div>
+                <div>双击: <span id="double-click-count">0</span></div>
+                <div>右击: <span id="right-click-count">0</span></div>
+                <div>拖动: <span id="drag-count">0</span></div>
+            </div>
+            
+            <div class="exercise" id="click-exercise">
+                <h3>单击练习</h3>
+                <p>点击下面的目标: <span id="click-targets">0/10</span></p>
+                <div class="target" id="click-target"></div>
+            </div>
+            
+            <div class="exercise" id="drag-exercise">
+                <h3>拖动练习</h3>
+                <p>将方块拖动到目标区域: <span id="drag-targets">0/5</span></p>
+                <div class="draggable" id="drag-item">拖动我</div>
+                <div class="dropzone"></div>
+            </div>
+            
+            <button id="reset-btn">重置训练</button>
+        </div>
+    </div>
+    
+    <script src="js/mouse_training.js"></script>
+</body>
+</html>
