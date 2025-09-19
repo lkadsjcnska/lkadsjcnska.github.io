@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>键盘训练</title>
+    <link rel="icon" href="https://s21.ax1x.com/2025/08/28/pV660mT.png" type="image/png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>键盘训练</h1>
+            <nav>
+                <a href="index.html">返回主页</a>
+            </nav>
+        </header>
+        
+        <div class="keyboard-training">
+            <div class="user-stats">
+                <h3>您的进度</h3>
+                <div>最高速度: <span id="max-speed">0</span> CPM</div>
+                <div>平均准确率: <span id="avg-accuracy">0</span>%</div>
+                <div>已完成关卡: <span id="completed-levels">0</span>/5</div>
+            </div>
+            
+            <div class="levels">
+                <h2>选择关卡</h2>
+                <div class="level-cards">
+                    <div class="level-card" data-level="1">
+                        <h3>关卡 1</h3>
+                        <p>基础键位练习</p>
+                        <div class="progress">未开始</div>
+                        <a href="keyboard_level1.html" class="btn">开始</a>
+                    </div>
+                    <div class="level-card" data-level="2">
+                        <h3>关卡 2</h3>
+                        <p>常用单词练习</p>
+                        <div class="progress">锁定中</div>
+                    </div>
+                    <div class="level-card" data-level="3">
+                        <h3>关卡 3</h3>
+                        <p>句子练习</p>
+                        <div class="progress">锁定中</div>
+                    </div>
+                    <div class="level-card" data-level="4">
+                        <h3>关卡 4</h3>
+                        <p>数字与符号</p>
+                        <div class="progress">锁定中</div>
+                    </div>
+                    <div class="level-card" data-level="5">
+                        <h3>关卡 5</h3>
+                        <p>速度挑战</p>
+                        <div class="progress">锁定中</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/progress.js"></script>
+    <script src="js/keyboard_training.js"></script>
+</body>
+</html>
