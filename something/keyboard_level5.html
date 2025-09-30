@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>键盘训练 - 关卡 5: 系统快捷键</title>
+    <link rel="icon" href="https://s21.ax1x.com/2025/08/28/pV660mT.png" type="image/png">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .os-selector {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .os-btn {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .os-btn.active {
+            background: #2980b9;
+        }
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .shortcut-item {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+        .shortcut-function {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .shortcut-keys {
+            color: #2c3e50;
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        .practice-area {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .practice-instruction {
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .key-history {
+            min-height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background: white;
+            margin: 15px 0;
+        }
+        .key-item {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 2px;
+            background: #e9ecef;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .key-item.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>键盘训练 - 关卡 5</h1>
+            <nav>
+                <a href="keyboard_training.html">返回训练主页</a>
+                <a href="index.html">返回主页面</a>
+            </nav>
+        </header>
+        
+        <div class="typing-test">
+            <h2>系统快捷键学习</h2>
+            <p>学习不同操作系统的常用快捷键</p>
+            
+            <div class="os-selector">
+                <button class="os-btn active" data-os="windows">Windows</button>
+                <button class="os-btn" data-os="mac">macOS</button>
+                <button class="os-btn" data-os="linux">Linux</button>
+            </div>
+            
+            <div id="shortcuts-container">
+                <!-- 快捷键列表将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="practice-area">
+                <h3>快捷键练习</h3>
+                <div class="practice-instruction" id="practice-instruction">
+                    选择操作系统后开始练习
+                </div>
+                <div class="key-history" id="key-history"></div>
+                <div class="stats-bar">
+                    <div>正确次数: <span id="correct-count">0</span></div>
+                    <div>练习进度: <span id="practice-progress">0%</span></div>
+                </div>
+            </div>
+            
+            <div id="completion-screen" style="display: none;">
+                <div class="completion-message">
+                    <h2>恭喜！完成所有键盘训练</h2>
+                    <p>您已掌握基本的键盘操作技能</p>
+                    <button id="return-btn" class="btn">返回训练主页</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/progress.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const shortcuts = {
+                windows: [
+                    { function: "复制", keys: "Ctrl + C" },
+                    { function: "粘贴", keys: "Ctrl + V" },
+                    { function: "剪切", keys: "Ctrl + X" },
+                    { function: "保存", keys: "Ctrl + S" },
+                    { function: "撤销", keys: "Ctrl + Z" },
+                    { function: "重做", keys: "Ctrl + Y" },
+                    { function: "新建窗口", keys: "Ctrl + N" },
+                    { function: "关闭窗口", keys: "Ctrl + W" },
+                    { function: "切换窗口", keys: "Alt + Tab" },
+                    { function: "任务管理器", keys: "Ctrl + Shift + Esc" },
+                    { function: "锁定电脑", keys: "Win + L" },
+                    { function: "搜索", keys: "Win + S" }
+                ],
+                mac: [
+                    { function: "复制", keys: "Cmd + C" },
+                    { function: "粘贴", keys: "Cmd + V" },
+                    { function: "剪切", keys: "Cmd + X" },
+                    { function: "保存", keys: "Cmd + S" },
+                    { function: "撤销", keys: "Cmd + Z" },
+                    { function: "重做", keys: "Cmd + Shift + Z" },
+                    { function: "新建窗口", keys: "Cmd + N" },
+                    { function: "关闭窗口", keys: "Cmd + W" },
+                    { function: "切换应用", keys: "Cmd + Tab" },
+                    { function: "强制退出", keys: "Cmd + Option + Esc" },
+                    { function: "锁定屏幕", keys: "Ctrl + Cmd + Q" },
+                    { function: "聚焦搜索", keys: "Cmd + Space" }
+                ],
+                linux: [
+                    { function: "复制", keys: "Ctrl + C" },
+                    { function: "粘贴", keys: "Ctrl + V" },
+                    { function: "剪切", keys: "Ctrl + X" },
+                    { function: "保存", keys: "Ctrl + S" },
+                    { function: "撤销", keys: "Ctrl + Z" },
+                    { function: "重做", keys: "Ctrl + Y" },
+                    { function: "新建终端", keys: "Ctrl + Shift + T" },
+                    { function: "关闭终端", keys: "Ctrl + D" },
+                    { function: "切换工作区", keys: "Ctrl + Alt + ↑/↓" },
+                    { function: "系统监控", keys: "Ctrl + Alt + Del" },
+                    { function: "锁定屏幕", keys: "Ctrl + Alt + L" },
+                    { function: "运行命令", keys: "Alt + F2" }
+                ]
+            };
+            
+            let currentOS = 'windows';
+            let practiceShortcuts = [];
+            let currentPracticeIndex = 0;
+            let correctCount = 0;
+            const keyHistory = document.getElementById('key-history');
+            const correctCountEl = document.getElementById('correct-count');
+            const practiceProgressEl = document.getElementById('practice-progress');
+            const practiceInstruction = document.getElementById('practice-instruction');
+            const completionScreen = document.getElementById('completion-screen');
+            
+            // 操作系统选择
+            document.querySelectorAll('.os-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.os-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentOS = this.getAttribute('data-os');
+                    loadShortcuts(currentOS);
+                    startPractice();
+                });
+            });
+            
+            // 加载快捷键列表
+            function loadShortcuts(os) {
+                const container = document.getElementById('shortcuts-container');
+                container.innerHTML = '<h3>' + getOSName(os) + ' 快捷键</h3><div class="shortcuts-grid"></div>';
+                const grid = container.querySelector('.shortcuts-grid');
+                
+                shortcuts[os].forEach(shortcut => {
+                    const item = document.createElement('div');
+                    item.className = 'shortcut-item';
+                    item.innerHTML = `
+                        <div class="shortcut-function">${shortcut.function}</div>
+                        <div class="shortcut-keys">${shortcut.keys}</div>
+                    `;
+                    grid.appendChild(item);
+                });
+            }
+            
+            function getOSName(os) {
+                const names = {
+                    windows: 'Windows',
+                    mac: 'macOS',
+                    linux: 'Linux'
+                };
+                return names[os] || os;
+            }
+            
+            // 开始练习
+            function startPractice() {
+                practiceShortcuts = [...shortcuts[currentOS]];
+                shuffleArray(practiceShortcuts);
+                currentPracticeIndex = 0;
+                correctCount = 0;
+                keyHistory.innerHTML = '';
+                updatePracticeStats();
+                showNextShortcut();
+                
+                // 添加键盘监听
+                document.addEventListener('keydown', handlePracticeKey);
+            }
+            
+            function showNextShortcut() {
+                if (currentPracticeIndex < practiceShortcuts.length) {
+                    const shortcut = practiceShortcuts[currentPracticeIndex];
+                    practiceInstruction.textContent = `请使用快捷键: ${shortcut.function} (${shortcut.keys})`;
+                } else {
+                    // 练习完成
+                    practiceInstruction.textContent = '练习完成！';
+                    document.removeEventListener('keydown', handlePracticeKey);
+                    
+                    // 保存进度
+                    const progressManager = new ProgressManager();
+                    progressManager.completeLevel(5, {
+                        speed: 100,
+                        accuracy: Math.round((correctCount / practiceShortcuts.length) * 100),
+                        time: 0
+                    });
+                    
+                    completionScreen.style.display = 'block';
+                    document.getElementById('return-btn').addEventListener('click', function() {
+                        window.location.href = 'keyboard_training.html';
+                    });
+                }
+                updatePracticeStats();
+            }
+            
+            function handlePracticeKey(e) {
+                const currentShortcut = practiceShortcuts[currentPracticeIndex];
+                let isCorrect = false;
+                
+                // 简化检查逻辑 - 实际应用中需要更复杂的检查
+                if (currentOS === 'windows' || currentOS === 'linux') {
+                    if (currentShortcut.function === "复制" && e.ctrlKey && e.key === 'c') isCorrect = true;
+                    if (currentShortcut.function === "粘贴" && e.ctrlKey && e.key === 'v') isCorrect = true;
+                    if (currentShortcut.function === "剪切" && e.ctrlKey && e.key === 'x') isCorrect = true;
+                    if (currentShortcut.function === "保存" && e.ctrlKey && e.key === 's') isCorrect = true;
+                    if (currentShortcut.function === "撤销" && e.ctrlKey && e.key === 'z') isCorrect = true;
+                } else if (currentOS === 'mac') {
+                    if (currentShortcut.function === "复制" && e.metaKey && e.key === 'c') isCorrect = true;
+                    if (currentShortcut.function === "粘贴" && e.metaKey && e.key === 'v') isCorrect = true;
+                    if (currentShortcut.function === "剪切" && e.metaKey && e.key === 'x') isCorrect = true;
+                    if (currentShortcut.function === "保存" && e.metaKey && e.key === 's') isCorrect = true;
+                    if (currentShortcut.function === "撤销" && e.metaKey && e.key === 'z') isCorrect = true;
+                }
+                
+                if (isCorrect) {
+                    correctCount++;
+                    const keyItem = document.createElement('span');
+                    keyItem.className = 'key-item correct';
+                    keyItem.textContent = currentShortcut.keys + ' ✓';
+                    keyHistory.appendChild(keyItem);
+                    currentPracticeIndex++;
+                    showNextShortcut();
+                }
+                
+                e.preventDefault();
+            }
+            
+            function updatePracticeStats() {
+                correctCountEl.textContent = correctCount;
+                const progress = Math.round((currentPracticeIndex / practiceShortcuts.length) * 100);
+                practiceProgressEl.textContent = progress + '%';
+            }
+            
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+            
+            // 初始化
+            loadShortcuts(currentOS);
+            startPractice();
+        });
+    </script>
+</body>
+</html>
