@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>键盘训练 - 关卡 1: 基础字母</title>
+    <link rel="icon" href="https://s21.ax1x.com/2025/08/28/pV660mT.png" type="image/png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>键盘训练 - 关卡 1</h1>
+            <nav>
+                <a href="keyboard_training.html">返回训练主页</a>
+                <a href="index.html">返回主页面</a>
+            </nav>
+        </header>
+        
+        <div class="typing-test">
+            <h2>基础字母练习</h2>
+            <p>按照顺序输入26个英文字母，注意大小写</p>
+            
+            <div class="stats-bar" id="typing-stats">
+                <div>速度: <span id="speed">0</span> CPM</div>
+                <div>准确率: <span id="accuracy">100%</span></div>
+                <div>进度: <span id="progress">0%</span></div>
+            </div>
+            
+            <div class="text-display" id="text-display"></div>
+            
+            <div class="input-area">
+                <input type="text" id="typing-input" placeholder="开始输入..." autocomplete="off">
+            </div>
+            
+            <button id="restart-btn" class="btn">重新开始</button>
+            
+            <div id="completion-screen" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <script src="js/progress.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const training = initKeyboardTraining(1);
+            
+            // 关卡1特定设置
+            const textDisplay = document.getElementById('text-display');
+            const targetText = 'abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            textDisplay.textContent = targetText;
+            
+            // 初始化训练
+            training.currentText = targetText;
+            training.updateDisplay();
+        });
+    </script>
+</body>
+</html>
