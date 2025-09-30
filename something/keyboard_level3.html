@@ -41,45 +41,41 @@
     </div>
     
     <script src="js/progress.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const training = initKeyboardTraining(3);
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const training = initKeyboardTraining(3);
+        
+        // 生成包含特殊字符的随机序列
+        function generateSpecialCharSequence() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+            let result = '';
+            const length = 45;
             
-            // 生成包含特殊字符的随机序列
-            function generateSpecialCharSequence() {
-                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
-                let result = '';
-                const length = 45; // 序列长度
-                
-                for (let i = 0; i < length; i++) {
-                    result += chars.charAt(Math.floor(Math.random() * chars.length));
-                    // 每5个字符加一个空格，提高可读性
-                    if ((i + 1) % 5 === 0 && i < length - 1) {
-                        result += ' ';
-                    }
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+                if ((i + 1) % 5 === 0 && i < length - 1) {
+                    result += ' ';
                 }
-                return result;
             }
-            
-            // 设置初始文本
-            const textDisplay = document.getElementById('text-display');
-            const initialText = generateSpecialCharSequence();
-            textDisplay.textContent = initialText;
-            training.currentText = initialText;
+            return result;
+        }
+        
+        // 设置初始文本
+        const initialText = generateSpecialCharSequence();
+        training.currentText = initialText;
+        training.updateDisplay();
+        
+        // 生成新序列按钮
+        document.getElementById('generate-new').addEventListener('click', function() {
+            const newText = generateSpecialCharSequence();
+            training.currentText = newText;
+            training.userInput = '';
+            training.startTime = new Date();
             training.updateDisplay();
-            
-            // 生成新序列按钮
-            document.getElementById('generate-new').addEventListener('click', function() {
-                const newText = generateSpecialCharSequence();
-                textDisplay.textContent = newText;
-                training.currentText = newText;
-                training.userInput = '';
-                training.startTime = new Date();
-                training.updateDisplay();
-                document.getElementById('typing-input').value = '';
-                document.getElementById('typing-input').focus();
-            });
+            document.getElementById('typing-input').value = '';
+            document.getElementById('typing-input').focus();
         });
-    </script>
+    });
+</script>
 </body>
 </html>
