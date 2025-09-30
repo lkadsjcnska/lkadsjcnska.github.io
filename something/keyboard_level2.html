@@ -41,45 +41,41 @@
     </div>
     
     <script src="js/progress.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const training = initKeyboardTraining(2);
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const training = initKeyboardTraining(2);
+        
+        // 生成随机字母数字序列
+        function generateRandomSequence() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            const length = 40;
             
-            // 生成随机字母数字序列
-            function generateRandomSequence() {
-                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                let result = '';
-                const length = 40; // 序列长度
-                
-                for (let i = 0; i < length; i++) {
-                    result += chars.charAt(Math.floor(Math.random() * chars.length));
-                    // 每5个字符加一个空格，提高可读性
-                    if ((i + 1) % 5 === 0 && i < length - 1) {
-                        result += ' ';
-                    }
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+                if ((i + 1) % 5 === 0 && i < length - 1) {
+                    result += ' ';
                 }
-                return result;
             }
-            
-            // 设置初始文本
-            const textDisplay = document.getElementById('text-display');
-            const initialText = generateRandomSequence();
-            textDisplay.textContent = initialText;
-            training.currentText = initialText;
+            return result;
+        }
+        
+        // 设置初始文本
+        const initialText = generateRandomSequence();
+        training.currentText = initialText;
+        training.updateDisplay();
+        
+        // 生成新序列按钮
+        document.getElementById('generate-new').addEventListener('click', function() {
+            const newText = generateRandomSequence();
+            training.currentText = newText;
+            training.userInput = '';
+            training.startTime = new Date();
             training.updateDisplay();
-            
-            // 生成新序列按钮
-            document.getElementById('generate-new').addEventListener('click', function() {
-                const newText = generateRandomSequence();
-                textDisplay.textContent = newText;
-                training.currentText = newText;
-                training.userInput = '';
-                training.startTime = new Date();
-                training.updateDisplay();
-                document.getElementById('typing-input').value = '';
-                document.getElementById('typing-input').focus();
-            });
+            document.getElementById('typing-input').value = '';
+            document.getElementById('typing-input').focus();
         });
-    </script>
+    });
+</script>
 </body>
 </html>
