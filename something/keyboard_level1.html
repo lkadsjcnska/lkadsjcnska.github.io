@@ -41,18 +41,21 @@
     
     <script src="js/progress.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const training = initKeyboardTraining(1);
-            
-            // 关卡1特定设置
-            const textDisplay = document.getElementById('text-display');
-            const targetText = 'abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            textDisplay.textContent = targetText;
-            
-            // 初始化训练
-            training.currentText = targetText;
-            training.updateDisplay();
-        });
-    </script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 使用全局函数
+        const training = initKeyboardTraining(1);
+        
+        // 关卡1特定设置
+        const textDisplay = document.getElementById('text-display');
+        const targetText = 'abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        
+        // 设置训练文本
+        training.currentText = targetText;
+        training.updateDisplay();
+        
+        // 为了方便调试，将实例暴露到全局
+        window.training = training;
+    });
+</script>
 </body>
 </html>
