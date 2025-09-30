@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>键盘训练 - 关卡 2: 字母与数字</title>
+    <link rel="icon" href="https://s21.ax1x.com/2025/08/28/pV660mT.png" type="image/png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>键盘训练 - 关卡 2</h1>
+            <nav>
+                <a href="keyboard_training.html">返回训练主页</a>
+                <a href="index.html">返回主页面</a>
+            </nav>
+        </header>
+        
+        <div class="typing-test">
+            <h2>字母与数字混合练习</h2>
+            <p>输入包含字母和数字的随机序列</p>
+            
+            <div class="stats-bar" id="typing-stats">
+                <div>速度: <span id="speed">0</span> CPM</div>
+                <div>准确率: <span id="accuracy">100%</span></div>
+                <div>进度: <span id="progress">0%</span></div>
+            </div>
+            
+            <div class="text-display" id="text-display"></div>
+            
+            <div class="input-area">
+                <input type="text" id="typing-input" placeholder="开始输入..." autocomplete="off">
+            </div>
+            
+            <button id="restart-btn" class="btn">重新开始</button>
+            <button id="generate-new" class="btn">生成新序列</button>
+            
+            <div id="completion-screen" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <script src="js/progress.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const training = initKeyboardTraining(2);
+            
+            // 生成随机字母数字序列
+            function generateRandomSequence() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let result = '';
+                const length = 40; // 序列长度
+                
+                for (let i = 0; i < length; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                    // 每5个字符加一个空格，提高可读性
+                    if ((i + 1) % 5 === 0 && i < length - 1) {
+                        result += ' ';
+                    }
+                }
+                return result;
+            }
+            
+            // 设置初始文本
+            const textDisplay = document.getElementById('text-display');
+            const initialText = generateRandomSequence();
+            textDisplay.textContent = initialText;
+            training.currentText = initialText;
+            training.updateDisplay();
+            
+            // 生成新序列按钮
+            document.getElementById('generate-new').addEventListener('click', function() {
+                const newText = generateRandomSequence();
+                textDisplay.textContent = newText;
+                training.currentText = newText;
+                training.userInput = '';
+                training.startTime = new Date();
+                training.updateDisplay();
+                document.getElementById('typing-input').value = '';
+                document.getElementById('typing-input').focus();
+            });
+        });
+    </script>
+</body>
+</html>
