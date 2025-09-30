@@ -21,3 +21,5 @@ KeyboardTraining.prototype.generateRandomSequence = function(length, chars) {
     }
     return result;
 };
+window.initKeyboardTraining = initKeyboardTraining;
+window.ProgressManager = ProgressManager;
