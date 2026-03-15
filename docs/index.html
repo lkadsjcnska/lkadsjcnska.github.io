@@ -270,11 +270,23 @@
             .toolbar { flex-wrap: wrap; justify-content: center; }
         }
 
-        /* 语言微调 */
-        [data-lang="en-US"] .zh-only, [data-lang="en-UK"] .zh-only { display: none; }
-        [data-lang="zh-CN"] .en-only { display: none; }
-        [data-lang="en-US"] .uk-only, [data-lang="zh-CN"] .uk-only { display: none; }
-        [data-lang="en-UK"] .us-only { display: none; }
+        /* 语言显示控制 (统一在这里定义，避免重复) */
+        .zh-only { display: none; }
+        .en-only { display: none; }
+        .us-only { display: none; }
+        .uk-only { display: none; }
+
+        body[data-lang="zh-CN"] .zh-only { display: inline; }
+        body[data-lang="en-US"] .en-only { display: inline; }
+        body[data-lang="en-US"] .us-only { display: inline; }
+        body[data-lang="en-UK"] .en-only { display: inline; }
+        body[data-lang="en-UK"] .uk-only { display: inline; }
+
+        /* 主题按钮文本控制 */
+        .theme-text { display: none; }
+        body[data-lang="zh-CN"] .theme-text.zh-only { display: inline; }
+        body[data-lang="en-US"] .theme-text.en-only { display: inline; }
+        body[data-lang="en-UK"] .theme-text.en-only { display: inline; }
     </style>
 </head>
 <body class="theme-day" data-lang="zh-CN">
@@ -313,7 +325,7 @@
         <!-- 文件列表区域 (初始隐藏) -->
         <div id="fileSection" class="file-section">
             <ul class="file-list" id="fileListContainer">
-                <!-- 由JavaScript动态生成，以保持与原始风格一致但支持动态列表 -->
+                <!-- 由JavaScript动态生成 -->
             </ul>
             <div class="footer">
                 <a href="https://lkadsjcnska.github.io/" class="back-link" id="homeLink">
@@ -327,70 +339,102 @@
 
     <script>
         (function() {
-            // ----- 配置 -----
-            const TARGET_DIR_URL = 'https://lkadsjcnska.github.io/docs/';  // 注意末尾斜杠
-            // 由于github pages 默认不支持目录列表，我们模拟原始风格中已知文件列表（但为了保证真实感，使用fetch尝试获取，回退预定义+检测index）
-            // 但github pages 如果没有开启列表，则无法自动获取。为了实现“自动识别该目录下的文件”并展示加载动画，
-            // 我们采用模拟请求 + 解析预设文件名的方案，但为了体现实时性，我们尝试fetch目录，但github通常返回403或index.html，
-            // 故采用动态生成但保留原有文件，并附加一个模拟延迟，展示加载动画。完全自动识别需要服务端支持，但我们可以尽力模拟。
+            // ----- 核心配置 -----
+            const TARGET_DIR_URL = 'https://lkadsjcnska.github.io/docs/';
             
-            // 已知原始文件列表（基于提供的清单）
-            const KNOWN_FILES = [
-                "001.txt",
-                "1.pdf",
-                "2.pdf",
-                "3.pdf",
-                "index.html",
-                "冷门科技 —— DFS 序求 LCA.pdf",
-                "同余代数.pdf",
-                "图论I.pdf",
-                "图论II.pdf",
-                "线段树进阶 Part 1.pdf",
-                "网络流.pdf"
-            ];
+            // 1. 文件名翻译映射表（key=原文件名，value=各语言翻译）
+            const FILE_NAME_TRANSLATIONS = {
+                "001.txt": {
+                    "zh-CN": "001.txt",
+                    "en-US": "001.txt",
+                    "en-UK": "001.txt"
+                },
+                "1.pdf": {
+                    "zh-CN": "1.pdf",
+                    "en-US": "1.pdf",
+                    "en-UK": "1.pdf"
+                },
+                "2.pdf": {
+                    "zh-CN": "2.pdf",
+                    "en-US": "2.pdf",
+                    "en-UK": "2.pdf"
+                },
+                "3.pdf": {
+                    "zh-CN": "3.pdf",
+                    "en-US": "3.pdf",
+                    "en-UK": "3.pdf"
+                },
+                "index.html": {
+                    "zh-CN": "首页.html",
+                    "en-US": "Homepage.html",
+                    "en-UK": "Homepage.html"
+                },
+                "冷门科技 —— DFS 序求 LCA.pdf": {
+                    "zh-CN": "冷门科技 —— DFS 序求 LCA.pdf",
+                    "en-US": "Niche Tech —— LCA Calculation via DFS Order.pdf",
+                    "en-UK": "Niche Tech —— LCA Calculation via DFS Order.pdf"
+                },
+                "同余代数.pdf": {
+                    "zh-CN": "同余代数.pdf",
+                    "en-US": "Congruence Algebra.pdf",
+                    "en-UK": "Congruence Algebra.pdf"
+                },
+                "图论I.pdf": {
+                    "zh-CN": "图论I.pdf",
+                    "en-US": "Graph Theory I.pdf",
+                    "en-UK": "Graph Theory I.pdf"
+                },
+                "图论II.pdf": {
+                    "zh-CN": "图论II.pdf",
+                    "en-US": "Graph Theory II.pdf",
+                    "en-UK": "Graph Theory II.pdf"
+                },
+                "线段树进阶 Part 1.pdf": {
+                    "zh-CN": "线段树进阶 Part 1.pdf",
+                    "en-US": "Segment Tree Advanced Part 1.pdf",
+                    "en-UK": "Segment Tree Advanced Part 1.pdf"
+                },
+                "网络流.pdf": {
+                    "zh-CN": "网络流.pdf",
+                    "en-US": "Network Flow.pdf",
+                    "en-UK": "Network Flow.pdf"
+                }
+            };
 
-            // 可能的新文件探测？我们也可以加上HEAD请求，但为避免跨域/复杂度，使用已知列表+额外文件模拟。
-            // 额外探测一个可能性: 尝试请求目录，但无法列出。为了演示“加载中”，我们延迟1.5s显示列表，同时canvas动画。
-            // 同时保持可扩展性——若后续有参数?refresh，可以重新探测，但当前作为静态页。
-            
-            // 我们将把已知文件渲染到列表，保留当前文件标记(index.html)
+            // 2. 原始文件列表（仅用于遍历，显示名称从翻译表取）
+            const KNOWN_FILES = Object.keys(FILE_NAME_TRANSLATIONS);
 
-            // ----- 多语言与主题 -----
+            // ----- 全局变量 -----
             const body = document.body;
             const langBtns = document.querySelectorAll('.lang-btn');
             const themeToggle = document.getElementById('themeToggle');
             const themeIcon = themeToggle.querySelector('.theme-icon');
+            const canvas = document.getElementById('loadingCanvas');
+            const ctx = canvas.getContext('2d');
+            const loadingContainer = document.getElementById('loadingContainer');
+            const fileSection = document.getElementById('fileSection');
+            const fileListEl = document.getElementById('fileListContainer');
             
-            // 当前语言 (默认zh-CN)
             let currentLang = 'zh-CN';
+            let animFrame = null;
+            let rotation = 0;
 
-            // 语言切换函数
+            // ----- 多语言切换核心逻辑 -----
             function setLanguage(langCode) {
+                // 更新语言属性
                 body.setAttribute('data-lang', langCode);
                 currentLang = langCode;
+                
                 // 更新按钮激活状态
                 langBtns.forEach(btn => {
-                    const code = btn.getAttribute('data-lang-code');
-                    if (code === langCode) {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
-                    }
+                    btn.classList.toggle('active', btn.getAttribute('data-lang-code') === langCode);
                 });
-                // 更新主题按钮内的文字 (可选)
-                const themeTextSpans = themeToggle.querySelectorAll('.theme-text');
-                if (langCode === 'zh-CN') {
-                    themeTextSpans.forEach(s => s.classList.contains('zh-only') ? s.style.display = 'inline' : s.style.display = 'none');
-                } else {
-                    themeTextSpans.forEach(s => {
-                        if (s.classList.contains('en-only')) s.style.display = 'inline';
-                        else s.style.display = 'none';
-                    });
-                }
-                // 重新设置主题图标对应的文本（不做复杂处理）
+                
+                // 重新渲染文件列表（显示对应语言的文件名）
+                renderFileList();
             }
 
-            // 主题切换
+            // ----- 主题切换 -----
             function toggleTheme() {
                 if (body.classList.contains('theme-day')) {
                     body.classList.remove('theme-day');
@@ -401,197 +445,111 @@
                     body.classList.add('theme-day');
                     themeIcon.textContent = '☀️';
                 }
-                // 更新主题内文本已在css变量变化
             }
 
-            // 绑定语言事件
-            langBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const langCode = btn.getAttribute('data-lang-code');
-                    setLanguage(langCode);
-                });
-            });
-
-            themeToggle.addEventListener('click', toggleTheme);
-
-            // 初始化语言显示
-            setLanguage('zh-CN');
-
-            // ----- Canvas 加载动画 (Win11 风格小圆圈) -----
-            const canvas = document.getElementById('loadingCanvas');
-            const ctx = canvas.getContext('2d');
-            let rotation = 0;
-            let animFrame = null;
-
-            // 绘制函数: 参考win11 圆点绕着圆圈移动, 使用小圆点渐变
+            // ----- Canvas 加载动画 -----
             function drawLoader(rotationAngle) {
                 ctx.clearRect(0, 0, 80, 80);
                 const centerX = 40, centerY = 40;
-                const radius = 24;  // 大圈半径
-                const dotCount = 8;   // 8个小圆点
+                const radius = 24;
+                const dotCount = 8;
                 const dotRadius = 4.5;
 
+                // 获取主题色
+                const style = getComputedStyle(body);
+                const dotColor = style.getPropertyValue('--loading-dot').trim() || '#2563eb';
+                const accentColor = style.getPropertyValue('--border-accent').trim() || '#60a5fa';
+
                 for (let i = 0; i < dotCount; i++) {
-                    // 计算偏移角度: 每个圆点间隔 2pi/dotCount ，整体旋转rotationAngle
                     const angle = (i * (2 * Math.PI / dotCount)) + rotationAngle;
                     const x = centerX + Math.cos(angle) * radius;
                     const y = centerY + Math.sin(angle) * radius;
 
-                    // 透明度渐变：当前活动圆点更亮，后面更暗，产生拖尾效果 (仿win11)
-                    // 使用i结合旋转造成偏移。这里简化：全部使用相同透明度，但为了漂亮，加上一点渐变。
-                    const opacity = 0.6 + 0.4 * Math.sin(angle + rotationAngle); // 动态变化
-                    // 颜色取自主题的loading-dot, 但canvas无法直接读取css变量，但可以通过js获取计算后的颜色
-                    // 简单使用蓝色/灰色，但根据主题反色？我们获取css变量，兜底使用#2563eb
-                    const style = getComputedStyle(body);
-                    const dotColor = style.getPropertyValue('--loading-dot').trim() || '#2563eb';
-
+                    // 透明度渐变
+                    const opacity = 0.7 + 0.3 * Math.sin(i + rotationAngle * 2);
                     ctx.beginPath();
                     ctx.arc(x, y, dotRadius, 0, 2 * Math.PI);
-                    ctx.fillStyle = dotColor; 
-                    // 稍微添加透明度变化
-                    ctx.globalAlpha = 0.7 + 0.3 * Math.sin(i + rotationAngle * 2);
+                    ctx.fillStyle = dotColor;
+                    ctx.globalAlpha = opacity;
                     ctx.fill();
                     ctx.globalAlpha = 1.0;
                 }
 
-                // 可选中心小光晕
+                // 中心小光晕
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, 5, 0, 2 * Math.PI);
-                ctx.fillStyle = getComputedStyle(body).getPropertyValue('--border-accent').trim() || '#60a5fa';
+                ctx.fillStyle = accentColor;
                 ctx.globalAlpha = 0.3;
                 ctx.fill();
                 ctx.globalAlpha = 1.0;
             }
 
             function animateLoader() {
-                rotation += 0.08;  // 旋转速度
+                rotation += 0.08;
                 drawLoader(rotation);
                 animFrame = requestAnimationFrame(animateLoader);
             }
 
-            // 启动动画
-            animateLoader();
-
-            // ----- 模拟文件加载过程 (显示加载中，然后填充列表) -----
-            const loadingContainer = document.getElementById('loadingContainer');
-            const fileSection = document.getElementById('fileSection');
-            const fileListEl = document.getElementById('fileListContainer');
-
-            // 生成列表项 (保持原始风格，加入当前文件标记)
-            function renderFileList(files) {
-                fileListEl.innerHTML = ''; // 清空
-                // 排序：常规文件在前，文件夹不处理。保持原有顺序也好，我们按照名字简单排，但保留原始列表样式
-                // 为了原样重现原始风格，使用KNOWN_FILES顺序（但可以按需）
-                files.forEach(filename => {
+            // ----- 渲染文件列表（核心：根据当前语言显示翻译后的文件名） -----
+            function renderFileList() {
+                fileListEl.innerHTML = '';
+                KNOWN_FILES.forEach(originalFilename => {
                     const li = document.createElement('li');
                     const a = document.createElement('a');
-                    // 生成完整href，指向docs子目录
-                    a.href = TARGET_DIR_URL + encodeURIComponent(filename);
-                    a.target = '_blank';  // 新标签页打开
-                    a.textContent = filename;
+                    
+                    // 1. 链接仍指向原文件名（保证可访问）
+                    a.href = TARGET_DIR_URL + encodeURIComponent(originalFilename);
+                    a.target = '_blank';
+                    
+                    // 2. 显示翻译后的文件名（无翻译则用原文件名）
+                    const displayName = FILE_NAME_TRANSLATIONS[originalFilename][currentLang] || originalFilename;
+                    a.textContent = displayName;
 
-                    li.appendChild(a);
-
-                    // 如果是index.html，添加标记
-                    if (filename === 'index.html') {
+                    // 3. 为index.html添加标记（显示对应语言的“当前文件”）
+                    if (originalFilename === 'index.html') {
                         const span = document.createElement('span');
                         span.className = 'current-mark';
-                        span.innerHTML = ` (${currentLang === 'zh-CN' ? '当前文件' : 'current'})`;
-                        a.appendChild(span);  // 追加在链接文字后
+                        span.textContent = currentLang === 'zh-CN' ? ' (当前文件)' : ' (current)';
+                        a.appendChild(span);
                     }
+
+                    li.appendChild(a);
                     fileListEl.appendChild(li);
                 });
-
-                // 再添加一条演示“动态性” (实际上也可以再放一个占位)
-                // 如果想模拟新文件探测，可以再加，但是为了保持原列表，暂时不加。
             }
 
-            // 模拟加载延迟 (1.8s 后显示列表，在此期间canvas一直在转)
+            // ----- 初始化逻辑 -----
+            // 1. 绑定事件
+            langBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setLanguage(btn.getAttribute('data-lang-code'));
+                });
+            });
+
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // 2. 启动加载动画
+            animateLoader();
+
+            // 3. 模拟加载延迟（1.8秒后显示列表）
             setTimeout(() => {
-                // 停止动画 (节省性能)
+                // 停止动画
                 if (animFrame) {
                     cancelAnimationFrame(animFrame);
                     animFrame = null;
                 }
-                // 绘制最终一帧清除? 也可以直接隐藏canvas
+                
+                // 隐藏加载区域，显示文件列表
                 loadingContainer.style.display = 'none';
                 fileSection.style.display = 'block';
+                
+                // 首次渲染文件列表
+                renderFileList();
+            }, 1800);
 
-                // 根据语言，列表中的标记可能需要更新, 但“当前文件”标记我们已经在生成时使用了固定文本，需要更新吗？简单处理: 可以重新生成，但标记保留中文/英文？
-                // 为了支持动态语言，我们在生成时判断lang，但后续切换语言标记不会变，用户切换语言几率小，重新生成列表可解决问题。但为了简化，我们可以不刷新列表。
-                // 完美做法: 监听语言变化重新渲染标记。我们实现一个refreshFileList根据当前语言。
-                function refreshFileList() {
-                    const items = fileListEl.querySelectorAll('li');
-                    items.forEach(li => {
-                        const a = li.querySelector('a');
-                        const filename = a.childNodes[0]?.nodeValue?.trim() || a.innerText.split('(')[0].trim(); // 简易
-                        if (filename === 'index.html') {
-                            let markSpan = li.querySelector('.current-mark');
-                            if (!markSpan) {
-                                markSpan = document.createElement('span');
-                                markSpan.className = 'current-mark';
-                                a.appendChild(markSpan);
-                            }
-                            markSpan.innerHTML = ` (${currentLang === 'zh-CN' ? '当前文件' : 'current'})`;
-                        }
-                    });
-                }
-
-                // 初始渲染列表
-                renderFileList(KNOWN_FILES);
-
-                // 监听语言变化更新标记 (简单重设标记文本)
-                const originalSetLang = setLanguage;
-                window.setLanguage = function(langCode) {
-                    originalSetLang(langCode);
-                    refreshFileList();
-                };
-                // 覆盖绑定确保自定义
-                langBtns.forEach(btn => {
-                    btn.removeEventListener('click', originalHandler); // 需重构，为省事先重新定义事件
-                });
-                // 重新定义语言切换增强
-                function enhancedLangHandler(e) {
-                    const code = e.currentTarget.getAttribute('data-lang-code');
-                    setLanguage(code);
-                    refreshFileList();  // 更新标记文本
-                }
-                langBtns.forEach(btn => btn.addEventListener('click', enhancedLangHandler));
-                // 同时将原setLanguage替换
-                setLanguage = function(langCode) {
-                    body.setAttribute('data-lang', langCode);
-                    currentLang = langCode;
-                    langBtns.forEach(btn => {
-                        btn.classList.toggle('active', btn.getAttribute('data-lang-code') === langCode);
-                    });
-                    refreshFileList();
-                };
-                // 初始化调用
-                setLanguage(currentLang);
-
-            }, 1800); // 1.8秒加载感
-
-            // 为了防止用户切换语言过早导致加载完成后标记不一致，但setTimeout内部已重构。
-
-            // 额外：如果canvas未停止，停止
-            // 清理动画的备选 (可见上面setTimeout)
+            // 4. 初始化语言
+            setLanguage(currentLang);
         })();
     </script>
-    <!-- 确保语言切换时正确显示en/uk/us 类，并初始化一些样式 -->
-    <style>
-        /* 确保语言切换时对应的span可见性 */
-        body[data-lang="zh-CN"] .zh-only { display: inline; }
-        body[data-lang="zh-CN"] .en-only { display: none; }
-
-        body[data-lang="en-US"] .zh-only, body[data-lang="en-UK"] .zh-only { display: none; }
-        body[data-lang="en-US"] .us-only { display: inline; }
-        body[data-lang="en-US"] .uk-only { display: none; }
-        body[data-lang="en-UK"] .us-only { display: none; }
-        body[data-lang="en-UK"] .uk-only { display: inline; }
-
-        .theme-text { display: none; }
-        body[data-lang="zh-CN"] .theme-text.zh-only { display: inline; }
-        body[data-lang="en-US"] .theme-text.en-only, body[data-lang="en-UK"] .theme-text.en-only { display: inline; }
-    </style>
 </body>
 </html>
