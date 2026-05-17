@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>数独求解器</title>
+  <!-- 预加载 OpenCV.js（加载完成后设置全局标记） -->
+  <script>
+    window.cvReady = false;
+    function onOpenCvReady() {
+      window.cvReady = true;
+      console.log('✅ OpenCV.js 已就绪');
+    }
+    // 异步加载 OpenCV.js
+    const script = document.createElement('script');
+    script.src = 'https://docs.opencv.org/4.7.0/opencv.js';
+    script.async = true;
+    script.onload = function() {
+      // OpenCV.js 会自动调用 cv['onRuntimeInitialized']
+      if (typeof cv !== 'undefined' && cv['onRuntimeInitialized']) {
+        // 已有回调，会在初始化后执行
+      }
+    };
+    script.onerror = () => console.error('❌ OpenCV.js 加载失败');
+    document.head.appendChild(script);
+  </script>
+  <script type="module" crossorigin src="./assets/main.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/style.css">
+</head>
+<body>
+  <div id="app"></div>
+</body>
+</html>
