@@ -338,218 +338,384 @@
     </div>
 
     <script>
-        (function() {
-            // ----- 核心配置 -----
-            const TARGET_DIR_URL = 'https://lkadsjcnska.github.io/docs/';
-            
-            // 1. 文件名翻译映射表（key=原文件名，value=各语言翻译）
-            const FILE_NAME_TRANSLATIONS = {
-                "001.txt": {
-                    "zh-CN": "001.txt",
-                    "en-US": "001.txt",
-                    "en-UK": "001.txt"
-                },
-                "1.pdf": {
-                    "zh-CN": "1.pdf",
-                    "en-US": "1.pdf",
-                    "en-UK": "1.pdf"
-                },
-                "2.pdf": {
-                    "zh-CN": "2.pdf",
-                    "en-US": "2.pdf",
-                    "en-UK": "2.pdf"
-                },
-                "3.pdf": {
-                    "zh-CN": "3.pdf",
-                    "en-US": "3.pdf",
-                    "en-UK": "3.pdf"
-                },
-                "index.html": {
-                    "zh-CN": "首页.html",
-                    "en-US": "Homepage.html",
-                    "en-UK": "Homepage.html"
-                },
-                "冷门科技 —— DFS 序求 LCA.pdf": {
-                    "zh-CN": "冷门科技 —— DFS 序求 LCA.pdf",
-                    "en-US": "Niche Tech —— LCA Calculation via DFS Order.pdf",
-                    "en-UK": "Niche Tech —— LCA Calculation via DFS Order.pdf"
-                },
-                "同余代数.pdf": {
-                    "zh-CN": "同余代数.pdf",
-                    "en-US": "Congruence Algebra.pdf",
-                    "en-UK": "Congruence Algebra.pdf"
-                },
-                "图论I.pdf": {
-                    "zh-CN": "图论I.pdf",
-                    "en-US": "Graph Theory I.pdf",
-                    "en-UK": "Graph Theory I.pdf"
-                },
-                "图论II.pdf": {
-                    "zh-CN": "图论II.pdf",
-                    "en-US": "Graph Theory II.pdf",
-                    "en-UK": "Graph Theory II.pdf"
-                },
-                "线段树进阶 Part 1.pdf": {
-                    "zh-CN": "线段树进阶 Part 1.pdf",
-                    "en-US": "Segment Tree Advanced Part 1.pdf",
-                    "en-UK": "Segment Tree Advanced Part 1.pdf"
-                },
-                "网络流.pdf": {
-                    "zh-CN": "网络流.pdf",
-                    "en-US": "Network Flow.pdf",
-                    "en-UK": "Network Flow.pdf"
-                }
-            };
+(function() {
 
-            // 2. 原始文件列表（仅用于遍历，显示名称从翻译表取）
-            const KNOWN_FILES = Object.keys(FILE_NAME_TRANSLATIONS);
+    const TARGET_DIR_URL =
+        'https://lkadsjcnska.github.io/docs/';
 
-            // ----- 全局变量 -----
-            const body = document.body;
-            const langBtns = document.querySelectorAll('.lang-btn');
-            const themeToggle = document.getElementById('themeToggle');
-            const themeIcon = themeToggle.querySelector('.theme-icon');
-            const canvas = document.getElementById('loadingCanvas');
-            const ctx = canvas.getContext('2d');
-            const loadingContainer = document.getElementById('loadingContainer');
-            const fileSection = document.getElementById('fileSection');
-            const fileListEl = document.getElementById('fileListContainer');
-            
-            let currentLang = 'zh-CN';
-            let animFrame = null;
-            let rotation = 0;
+    const TRANSLATION_URL =
+        './translations.json';
 
-            // ----- 多语言切换核心逻辑 -----
-            function setLanguage(langCode) {
-                // 更新语言属性
-                body.setAttribute('data-lang', langCode);
-                currentLang = langCode;
-                
-                // 更新按钮激活状态
-                langBtns.forEach(btn => {
-                    btn.classList.toggle('active', btn.getAttribute('data-lang-code') === langCode);
-                });
-                
-                // 重新渲染文件列表（显示对应语言的文件名）
-                renderFileList();
+
+    const body = document.body;
+    const langBtns = document.querySelectorAll('.lang-btn');
+
+    const themeToggle =
+        document.getElementById('themeToggle');
+
+    const themeIcon =
+        themeToggle.querySelector('.theme-icon');
+
+    const canvas =
+        document.getElementById('loadingCanvas');
+
+    const ctx =
+        canvas.getContext('2d');
+
+    const loadingContainer =
+        document.getElementById('loadingContainer');
+
+    const fileSection =
+        document.getElementById('fileSection');
+
+    const fileListEl =
+        document.getElementById('fileListContainer');
+
+
+    let currentLang = 'zh-CN';
+
+    let FILE_LIST = [];
+
+    let TRANSLATIONS = {};
+
+    let animFrame = null;
+
+    let rotation = 0;
+
+
+
+    // =========================
+    // 获取 GitHub 文件列表
+    // =========================
+
+    async function loadFiles(){
+
+        try{
+
+            const api =
+            "https://api.github.com/repos/lkadsjcnska/lkadsjcnska.github.io/contents/docs";
+
+
+            const response =
+            await fetch(api);
+
+
+            const data =
+            await response.json();
+
+
+
+            FILE_LIST =
+            data
+            .filter(item =>
+                item.type === "file" &&
+                item.name !== "index.html" &&
+                item.name !== "translations.json"
+            )
+            .map(item =>
+                item.name
+            );
+
+
+        }catch(e){
+
+            console.error(e);
+
+        }
+
+
+    }
+
+
+
+    // =========================
+    // 获取翻译表
+    // =========================
+
+    async function loadTranslations(){
+
+        try{
+
+            const response =
+            await fetch(TRANSLATION_URL);
+
+
+            TRANSLATIONS =
+            await response.json();
+
+
+        }catch(e){
+
+            console.error(e);
+
+            TRANSLATIONS={};
+
+        }
+
+    }
+
+
+
+    // =========================
+    // 语言切换
+    // =========================
+
+    function setLanguage(langCode){
+
+        body.setAttribute(
+            'data-lang',
+            langCode
+        );
+
+
+        currentLang =
+        langCode;
+
+
+        langBtns.forEach(btn=>{
+
+            btn.classList.toggle(
+                'active',
+                btn.dataset.langCode===langCode
+            );
+
+        });
+
+
+        renderFileList();
+
+    }
+
+
+
+
+    // =========================
+    // 主题
+    // =========================
+
+    function toggleTheme(){
+
+        if(body.classList.contains('theme-day')){
+
+            body.classList.remove('theme-day');
+
+            body.classList.add('theme-night');
+
+            themeIcon.textContent='🌙';
+
+
+        }else{
+
+
+            body.classList.remove('theme-night');
+
+            body.classList.add('theme-day');
+
+            themeIcon.textContent='☀️';
+
+        }
+
+    }
+
+
+
+    // =========================
+    // 文件列表
+    // =========================
+
+    function renderFileList(){
+
+
+        fileListEl.innerHTML='';
+
+
+        FILE_LIST.forEach(filename=>{
+
+
+            const li =
+            document.createElement('li');
+
+
+            const a =
+            document.createElement('a');
+
+
+
+            // 真实文件链接
+
+            a.href =
+            TARGET_DIR_URL +
+            encodeURIComponent(filename);
+
+
+            a.target='_blank';
+
+
+
+            // 显示名称
+
+            let name =
+            filename;
+
+
+            if(TRANSLATIONS[filename]){
+
+                name =
+                TRANSLATIONS[filename][currentLang]
+                ||
+                filename;
+
             }
 
-            // ----- 主题切换 -----
-            function toggleTheme() {
-                if (body.classList.contains('theme-day')) {
-                    body.classList.remove('theme-day');
-                    body.classList.add('theme-night');
-                    themeIcon.textContent = '🌙';
-                } else {
-                    body.classList.remove('theme-night');
-                    body.classList.add('theme-day');
-                    themeIcon.textContent = '☀️';
-                }
+
+            a.textContent=name;
+
+
+
+            li.appendChild(a);
+
+            fileListEl.appendChild(li);
+
+
+        });
+
+
+    }
+
+
+
+    // =========================
+    // Canvas动画
+    // =========================
+
+    function drawLoader(angle){
+
+        ctx.clearRect(0,0,80,80);
+
+
+        const cx=40;
+        const cy=40;
+
+        const radius=24;
+
+
+        for(let i=0;i<8;i++){
+
+            const a =
+            i*Math.PI/4+angle;
+
+
+            const x =
+            cx+Math.cos(a)*radius;
+
+
+            const y =
+            cy+Math.sin(a)*radius;
+
+
+            ctx.beginPath();
+
+            ctx.arc(
+                x,
+                y,
+                4.5,
+                0,
+                Math.PI*2
+            );
+
+
+            ctx.fillStyle =
+            getComputedStyle(body)
+            .getPropertyValue('--loading-dot');
+
+
+            ctx.fill();
+
+        }
+
+
+    }
+
+
+    function animateLoader(){
+
+        rotation+=0.08;
+
+        drawLoader(rotation);
+
+        animFrame =
+        requestAnimationFrame(
+            animateLoader
+        );
+
+    }
+
+
+
+    // =========================
+    // 初始化
+    // =========================
+
+
+    langBtns.forEach(btn=>{
+
+        btn.addEventListener(
+            'click',
+            ()=>{
+
+                setLanguage(
+                    btn.dataset.langCode
+                );
+
             }
+        );
 
-            // ----- Canvas 加载动画 -----
-            function drawLoader(rotationAngle) {
-                ctx.clearRect(0, 0, 80, 80);
-                const centerX = 40, centerY = 40;
-                const radius = 24;
-                const dotCount = 8;
-                const dotRadius = 4.5;
+    });
 
-                // 获取主题色
-                const style = getComputedStyle(body);
-                const dotColor = style.getPropertyValue('--loading-dot').trim() || '#2563eb';
-                const accentColor = style.getPropertyValue('--border-accent').trim() || '#60a5fa';
 
-                for (let i = 0; i < dotCount; i++) {
-                    const angle = (i * (2 * Math.PI / dotCount)) + rotationAngle;
-                    const x = centerX + Math.cos(angle) * radius;
-                    const y = centerY + Math.sin(angle) * radius;
 
-                    // 透明度渐变
-                    const opacity = 0.7 + 0.3 * Math.sin(i + rotationAngle * 2);
-                    ctx.beginPath();
-                    ctx.arc(x, y, dotRadius, 0, 2 * Math.PI);
-                    ctx.fillStyle = dotColor;
-                    ctx.globalAlpha = opacity;
-                    ctx.fill();
-                    ctx.globalAlpha = 1.0;
-                }
+    themeToggle.addEventListener(
+        'click',
+        toggleTheme
+    );
 
-                // 中心小光晕
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, 5, 0, 2 * Math.PI);
-                ctx.fillStyle = accentColor;
-                ctx.globalAlpha = 0.3;
-                ctx.fill();
-                ctx.globalAlpha = 1.0;
-            }
 
-            function animateLoader() {
-                rotation += 0.08;
-                drawLoader(rotation);
-                animFrame = requestAnimationFrame(animateLoader);
-            }
 
-            // ----- 渲染文件列表（核心：根据当前语言显示翻译后的文件名） -----
-            function renderFileList() {
-                fileListEl.innerHTML = '';
-                KNOWN_FILES.forEach(originalFilename => {
-                    const li = document.createElement('li');
-                    const a = document.createElement('a');
-                    
-                    // 1. 链接仍指向原文件名（保证可访问）
-                    a.href = TARGET_DIR_URL + encodeURIComponent(originalFilename);
-                    a.target = '_blank';
-                    
-                    // 2. 显示翻译后的文件名（无翻译则用原文件名）
-                    const displayName = FILE_NAME_TRANSLATIONS[originalFilename][currentLang] || originalFilename;
-                    a.textContent = displayName;
+    animateLoader();
 
-                    // 3. 为index.html添加标记（显示对应语言的“当前文件”）
-                    if (originalFilename === 'index.html') {
-                        const span = document.createElement('span');
-                        span.className = 'current-mark';
-                        span.textContent = currentLang === 'zh-CN' ? ' (当前文件)' : ' (current)';
-                        a.appendChild(span);
-                    }
 
-                    li.appendChild(a);
-                    fileListEl.appendChild(li);
-                });
-            }
 
-            // ----- 初始化逻辑 -----
-            // 1. 绑定事件
-            langBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    setLanguage(btn.getAttribute('data-lang-code'));
-                });
-            });
+    Promise.all([
+        loadFiles(),
+        loadTranslations()
+    ])
+    .then(()=>{
 
-            themeToggle.addEventListener('click', toggleTheme);
 
-            // 2. 启动加载动画
-            animateLoader();
+        if(animFrame){
 
-            // 3. 模拟加载延迟（1.8秒后显示列表）
-            setTimeout(() => {
-                // 停止动画
-                if (animFrame) {
-                    cancelAnimationFrame(animFrame);
-                    animFrame = null;
-                }
-                
-                // 隐藏加载区域，显示文件列表
-                loadingContainer.style.display = 'none';
-                fileSection.style.display = 'block';
-                
-                // 首次渲染文件列表
-                renderFileList();
-            }, 1800);
+            cancelAnimationFrame(animFrame);
 
-            // 4. 初始化语言
-            setLanguage(currentLang);
-        })();
-    </script>
+        }
+
+
+        loadingContainer.style.display='none';
+
+        fileSection.style.display='block';
+
+
+        renderFileList();
+
+
+    });
+
+
+
+    setLanguage(currentLang);
+
+
+
+})();
+</script>
 </body>
 </html>
