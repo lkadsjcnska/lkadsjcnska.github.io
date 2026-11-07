@@ -1,0 +1,14 @@
+name: Deploy Jekyll Site
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jeffreytse/jekyll-deploy-action@v0.4  # 这是正确的 GitHub Action
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
