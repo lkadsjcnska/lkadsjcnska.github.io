@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件索引 · 多语言主题版</title>
+    <style>
+        /* 全局样式 & 主题变量 (白天模式) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, system-ui, sans-serif;
+            background-color: #f0f2f5;  /* 白天底色 */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px;
+        }
+
+        /* 主题变量：白天 (默认) */
+        .theme-day {
+            --bg-body: #f0f2f5;
+            --container-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #334155;
+            --card-bg: #f8fafc;
+            --border-accent: #2563eb;
+            --link-color: #1d4ed8;
+            --link-hover: #0f2b7a;
+            --btn-bg: #e2e8f0;
+            --btn-hover: #cbd5e1;
+            --back-bg: #2563eb;
+            --back-hover: #1e40af;
+            --back-text: white;
+            --lang-selector-bg: #ffffffcc;
+            --lang-selector-border: #cbd5e1;
+            --shadow: 0 8px 20px rgba(0,0,0,0.06);
+            --loading-dot: #2563eb;
+            --file-item-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        /* 主题变量：黑夜模式 */
+        .theme-night {
+            --bg-body: #0f172a;
+            --container-bg: #1e293b;
+            --text-primary: #e2e8f0;
+            --text-secondary: #cbd5e1;
+            --card-bg: #2d3a4f;
+            --border-accent: #60a5fa;
+            --link-color: #93c5fd;
+            --link-hover: #bfdbfe;
+            --btn-bg: #334155;
+            --btn-hover: #475569;
+            --back-bg: #3b82f6;
+            --back-hover: #2563eb;
+            --back-text: #f8fafc;
+            --lang-selector-bg: #1e293bdd;
+            --lang-selector-border: #475569;
+            --shadow: 0 8px 20px rgba(0,0,0,0.5);
+            --loading-dot: #94a3b8;
+            --file-item-shadow: 0 2px 5px rgba(0,0,0,0.4);
+        }
+
+        body {
+            background-color: var(--bg-body);
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 20px auto;
+            background-color: var(--container-bg);
+            padding: 28px 32px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(2px);
+            position: relative;
+            border: 1px solid var(--lang-selector-border);
+        }
+
+        /* 头部：标题 + 语言/主题工具栏 */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--lang-selector-border);
+            padding-bottom: 16px;
+        }
+
+        h1 {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: var(--lang-selector-bg);
+            padding: 6px 12px;
+            border-radius: 40px;
+            border: 1px solid var(--lang-selector-border);
+            backdrop-filter: blur(4px);
+        }
+
+        .lang-btn, .theme-toggle {
+            background: transparent;
+            border: none;
+            font-size: 1rem;
+            padding: 8px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .lang-btn.active {
+            background: var(--btn-bg);
+            color: var(--text-primary);
+            border-color: var(--border-accent);
+            font-weight: 600;
+        }
+
+        .lang-btn:hover {
+            background: var(--btn-hover);
+            color: var(--text-primary);
+        }
+
+        .theme-toggle {
+            background: var(--btn-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--lang-selector-border);
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--btn-hover);
+        }
+
+        /* 加载区域 + Canvas 动画 */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            margin: 20px 0;
+            border: 1px solid var(--lang-selector-border);
+        }
+
+        canvas.loading-canvas {
+            width: 64px;
+            height: 64px;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        /* 文件列表区域 (初始隐藏) */
+        .file-section {
+            display: none;
+        }
+
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-list li {
+            margin: 0;
+            padding: 14px 18px;
+            background-color: var(--card-bg);
+            border-radius: 14px;
+            border-left: 6px solid var(--border-accent);
+            box-shadow: var(--file-item-shadow);
+            transition: transform 0.1s ease;
+            word-break: break-word;
+        }
+
+        .file-list li:hover {
+            transform: translateX(4px);
+        }
+
+        .file-list a {
+            text-decoration: none;
+            color: var(--link-color);
+            font-size: 1.2rem;
+            font-weight: 500;
+            display: block;
+        }
+
+        .file-list a:hover {
+            text-decoration: underline;
+            color: var(--link-hover);
+        }
+
+        .file-list .current-mark {
+            font-size: 0.9rem;
+            font-weight: normal;
+            color: var(--text-secondary);
+            margin-left: 12px;
+            background: var(--btn-bg);
+            padding: 2px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .back-link {
+            display: inline-block;
+            text-align: center;
+            margin-top: 30px;
+            padding: 14px 24px;
+            background-color: var(--back-bg);
+            color: var(--back-text);
+            text-decoration: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            border: none;
+            width: auto;
+            min-width: 200px;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .back-link:hover {
+            background-color: var(--back-hover);
+            transform: scale(1.02);
+        }
+
+        .footer {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 自适应 */
+        @media (max-width: 600px) {
+            .container { padding: 18px; }
+            h1 { font-size: 1.8rem; }
+            .toolbar { flex-wrap: wrap; justify-content: center; }
+        }
+
+        /* 语言显示控制 (统一在这里定义，避免重复) */
+        .zh-only { display: none; }
+        .en-only { display: none; }
+        .us-only { display: none; }
+        .uk-only { display: none; }
+
+        body[data-lang="zh-CN"] .zh-only { display: inline; }
+        body[data-lang="en-US"] .en-only { display: inline; }
+        body[data-lang="en-US"] .us-only { display: inline; }
+        body[data-lang="en-UK"] .en-only { display: inline; }
+        body[data-lang="en-UK"] .uk-only { display: inline; }
+
+        /* 主题按钮文本控制 */
+        .theme-text { display: none; }
+        body[data-lang="zh-CN"] .theme-text.zh-only { display: inline; }
+        body[data-lang="en-US"] .theme-text.en-only { display: inline; }
+        body[data-lang="en-UK"] .theme-text.en-only { display: inline; }
+    </style>
+</head>
+<body class="theme-day" data-lang="zh-CN">
+    <div class="container">
+        <!-- 标题与切换栏 -->
+        <div class="header">
+            <h1>
+                <span class="zh-only">📄 文档索引</span>
+                <span class="en-only us-only">📄 File Index</span>
+                <span class="en-only uk-only">📄 File Index (UK)</span>
+            </h1>
+            <div class="toolbar">
+                <!-- 语言切换 三个按钮 -->
+                <button class="lang-btn active" data-lang-code="zh-CN">🇨🇳 中</button>
+                <button class="lang-btn" data-lang-code="en-US">🇺🇸 EN(us)</button>
+                <button class="lang-btn" data-lang-code="en-UK">🇬🇧 EN(uk)</button>
+                <!-- 主题切换按钮 白天/黑夜 -->
+                <button class="theme-toggle" id="themeToggle" title="切换主题">
+                    <span class="theme-icon">☀️</span>
+                    <span class="theme-text zh-only">白天</span>
+                    <span class="theme-text en-only">Light</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 加载动画区域 (canvas绘制win11风格圆点) -->
+        <div id="loadingContainer" class="loading-container">
+            <canvas id="loadingCanvas" class="loading-canvas" width="80" height="80"></canvas>
+            <div id="loadingMessage" class="loading-text">
+                <span class="zh-only">加载文件中...</span>
+                <span class="en-only us-only">Loading files...</span>
+                <span class="en-only uk-only">Loading files...</span>
+            </div>
+        </div>
+
+        <!-- 文件列表区域 (初始隐藏) -->
+        <div id="fileSection" class="file-section">
+            <ul class="file-list" id="fileListContainer">
+                <!-- 由JavaScript动态生成 -->
+            </ul>
+            <div class="footer">
+                <a href="https://lkadsjcnska.github.io/" class="back-link" id="homeLink">
+                    <span class="zh-only">🏠 返回主页</span>
+                    <span class="en-only us-only">🏠 Back to Home</span>
+                    <span class="en-only uk-only">🏠 Back to Home</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+(function() {
+
+    const TARGET_DIR_URL =
+        'https://lkadsjcnska.github.io/docs/';
+
+    const TRANSLATION_URL =
+        './translations.json';
+
+
+    const body = document.body;
+    const langBtns = document.querySelectorAll('.lang-btn');
+
+    const themeToggle =
+        document.getElementById('themeToggle');
+
+    const themeIcon =
+        themeToggle.querySelector('.theme-icon');
+
+    const canvas =
+        document.getElementById('loadingCanvas');
+
+    const ctx =
+        canvas.getContext('2d');
+
+    const loadingContainer =
+        document.getElementById('loadingContainer');
+
+    const fileSection =
+        document.getElementById('fileSection');
+
+    const fileListEl =
+        document.getElementById('fileListContainer');
+
+
+    let currentLang = 'zh-CN';
+
+    let FILE_LIST = [];
+
+    let TRANSLATIONS = {};
+
+    let animFrame = null;
+
+    let rotation = 0;
+
+
+
+    // =========================
+    // 获取 GitHub 文件列表
+    // =========================
+
+    async function loadFiles(){
+
+        try{
+
+            const api =
+            "https://api.github.com/repos/lkadsjcnska/lkadsjcnska.github.io/contents/docs";
+
+
+            const response =
+            await fetch(api);
+
+
+            const data =
+            await response.json();
+
+
+
+            FILE_LIST =
+            data
+            .filter(item =>
+                item.type === "file" &&
+                item.name !== "index.html" &&
+                item.name !== "translations.json"
+            )
+            .map(item =>
+                item.name
+            );
+
+
+        }catch(e){
+
+            console.error(e);
+
+        }
+
+
+    }
+
+
+
+    // =========================
+    // 获取翻译表
+    // =========================
+
+    async function loadTranslations(){
+
+        try{
+
+            const response =
+            await fetch(TRANSLATION_URL);
+
+
+            TRANSLATIONS =
+            await response.json();
+
+
+        }catch(e){
+
+            console.error(e);
+
+            TRANSLATIONS={};
+
+        }
+
+    }
+
+
+
+    // =========================
+    // 语言切换
+    // =========================
+
+    function setLanguage(langCode){
+
+        body.setAttribute(
+            'data-lang',
+            langCode
+        );
+
+
+        currentLang =
+        langCode;
+
+
+        langBtns.forEach(btn=>{
+
+            btn.classList.toggle(
+                'active',
+                btn.dataset.langCode===langCode
+            );
+
+        });
+
+
+        renderFileList();
+
+    }
+
+
+
+
+    // =========================
+    // 主题
+    // =========================
+
+    function toggleTheme(){
+
+        if(body.classList.contains('theme-day')){
+
+            body.classList.remove('theme-day');
+
+            body.classList.add('theme-night');
+
+            themeIcon.textContent='🌙';
+
+
+        }else{
+
+
+            body.classList.remove('theme-night');
+
+            body.classList.add('theme-day');
+
+            themeIcon.textContent='☀️';
+
+        }
+
+    }
+
+
+
+    // =========================
+    // 文件列表
+    // =========================
+
+    function renderFileList(){
+
+
+        fileListEl.innerHTML='';
+
+
+        FILE_LIST.forEach(filename=>{
+
+
+            const li =
+            document.createElement('li');
+
+
+            const a =
+            document.createElement('a');
+
+
+
+            // 真实文件链接
+
+            a.href =
+            TARGET_DIR_URL +
+            encodeURIComponent(filename);
+
+
+            a.target='_blank';
+
+
+
+            // 显示名称
+
+            let name =
+            filename;
+
+
+            if(TRANSLATIONS[filename]){
+
+                name =
+                TRANSLATIONS[filename][currentLang]
+                ||
+                filename;
+
+            }
+
+
+            a.textContent=name;
+
+
+
+            li.appendChild(a);
+
+            fileListEl.appendChild(li);
+
+
+        });
+
+
+    }
+
+
+
+    // =========================
+    // Canvas动画
+    // =========================
+
+    function drawLoader(angle){
+
+        ctx.clearRect(0,0,80,80);
+
+
+        const cx=40;
+        const cy=40;
+
+        const radius=24;
+
+
+        for(let i=0;i<8;i++){
+
+            const a =
+            i*Math.PI/4+angle;
+
+
+            const x =
+            cx+Math.cos(a)*radius;
+
+
+            const y =
+            cy+Math.sin(a)*radius;
+
+
+            ctx.beginPath();
+
+            ctx.arc(
+                x,
+                y,
+                4.5,
+                0,
+                Math.PI*2
+            );
+
+
+            ctx.fillStyle =
+            getComputedStyle(body)
+            .getPropertyValue('--loading-dot');
+
+
+            ctx.fill();
+
+        }
+
+
+    }
+
+
+    function animateLoader(){
+
+        rotation+=0.08;
+
+        drawLoader(rotation);
+
+        animFrame =
+        requestAnimationFrame(
+            animateLoader
+        );
+
+    }
+
+
+
+    // =========================
+    // 初始化
+    // =========================
+
+
+    langBtns.forEach(btn=>{
+
+        btn.addEventListener(
+            'click',
+            ()=>{
+
+                setLanguage(
+                    btn.dataset.langCode
+                );
+
+            }
+        );
+
+    });
+
+
+
+    themeToggle.addEventListener(
+        'click',
+        toggleTheme
+    );
+
+
+
+    animateLoader();
+
+
+
+    Promise.all([
+        loadFiles(),
+        loadTranslations()
+    ])
+    .then(()=>{
+
+
+        if(animFrame){
+
+            cancelAnimationFrame(animFrame);
+
+        }
+
+
+        loadingContainer.style.display='none';
+
+        fileSection.style.display='block';
+
+
+        renderFileList();
+
+
+    });
+
+
+
+    setLanguage(currentLang);
+
+
+
+})();
+</script>
+</body>
+</html>
