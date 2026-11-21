@@ -11,24 +11,27 @@ repo_name = "lkadsjcnska/lkadsjcnska.github.io"
 # edit_uri = "edit/main/docs/"
 
 nav = [
-  { "首页" = "index.md" },
-  { "关于" = "about.md" },
+  { "首页" = [
+      { "主页" = "index.md" },
+      { "关于我" = "about.md" }
+  ]},
   { "题解" = [
       { "P1601 题解" = "solutions/P1601.md" },
       { "B3869 题解" = "solutions/B3869.md" }
   ]},
-  { "编程语言" = [
-      { "C++" = [
-          { "快速开始" = [
-              { "环境配置" = "C_plus_plus/Getting Started/Setup.md" }
-          ]},
-          { "进阶技巧" = [] } # 留空，以后有了再加
+  { "C++" = [
+      { "快速开始" = [
+          { "环境配置" = "C_plus_plus/Getting Started/Setup.md" }
       ]},
-      { "Python" = [
-          { "快速开始" = [
-              { "环境配置" = "Python/Getting Started/Setup.md" }
-          ]},
-          { "进阶技巧" = [] }
+      { "进阶技巧" = [] }
+  ]},
+  { "Python" = [
+      { "快速开始" = [
+          { "环境配置" = "Python/Getting Started/Setup.md" }
+      ]},
+      { "进阶技巧" = [] },
+      { "其它" = [
+          { "Matplotlib 饼图" = "Python/Others/Mapt/001.md" }
       ]}
   ]},
   { "闲暇时光" = [
@@ -39,6 +42,9 @@ nav = [
       { "吐槽" = [
           { "001" = "Life/Others/Complain1.md" }
       ]}
+  ]},
+  { "虚拟机" = [
+      { "VMware 安装 Ubuntu" = "Virtual_machine/Setup_Ubuntu.md" }
   ]},
   { "个人仓库" = "files/index.md" }
 ]
@@ -148,14 +154,17 @@ pymdownx.tasklist.custom_checkbox = true
 pymdownx.tilde = {}
 
 
-[project.plugins]
-tags = {}
+[project.plugins.tags]
 
 [project.extra.tags]
-Cpp = "C++"
-Rust = "Rust"
-Python = "Python"
-PS = "PowerShell"
-HTML5 = "html"
-JavaScript = "js"
-CSS = "css"
+"C++" = "C++"
+"Rust" = "Rust"
+"Python" = "Python"
+"PowerShell" = "PowerShell"
+"HTML5" = "HTML5"
+"JavaScript" = "JavaScript"
+"CSS" = "CSS"
+"虚拟机" = "虚拟机"
+"Virtual Machine" = "Virtual Machine"
+"数据可视化" = "数据可视化"
+"Data Visualization" = "Data Visualization"
