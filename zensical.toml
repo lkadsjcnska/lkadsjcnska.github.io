@@ -1,29 +1,46 @@
 [project]
 site_url = "https://lkadsjcnska.github.io/"
 site_name = "小草的博客"
-# site_description = "Your project description"
-# site_author = "Your name"
+site_description = "小草的博客 - 个人博客"
+site_author = "lkadsjcnska"
 
-# copyright = "Copyright &copy; 2026 Your name"
+copyright = "Copyright &copy; 2026 lkadsjcnska"
 
 # repo_url = "https://github.com/user/repo"
-# repo_name = "user/repo"
+repo_name = "lkadsjcnska/lkadsjcnska.github.io"
 # edit_uri = "edit/main/docs/"
 
 nav = [
-  { "首页" = [
-      { "介绍" = "index.md" },
-      { "关于" = "about.md" }
-  ]},
+  { "首页" = "index.md" },
+  { "关于" = "about.md" },
   { "题解" = [
       { "P1601 题解" = "solutions/P1601.md" },
       { "B3869 题解" = "solutions/B3869.md" }
   ]},
-  { "个人仓库" = "files/index.md" },
-  { "闲谈" = [
-      { "介绍" = "game/index.md" },
-      { "脑叶公司" = "game/Lobotomy Corporation.md" }
-  ]}
+  { "编程语言" = [
+      { "C++" = [
+          { "快速开始" = [
+              { "环境配置" = "C_plus_plus/Getting Started/Setup.md" }
+          ]},
+          { "进阶技巧" = [] } # 留空，以后有了再加
+      ]},
+      { "Python" = [
+          { "快速开始" = [
+              { "环境配置" = "Python/Getting Started/Setup.md" }
+          ]},
+          { "进阶技巧" = [] }
+      ]}
+  ]},
+  { "闲暇时光" = [
+      { "生活杂谈" = "Life/index.md" },
+      { "游戏" = [
+          { "脑叶公司" = "Life/Game/Lobotomy Corporation.md" }
+      ]},
+      { "吐槽" = [
+          { "001" = "Life/Others/Complain1.md" }
+      ]}
+  ]},
+  { "个人仓库" = "files/index.md" }
 ]
 
 extra_css = ["stylesheets/extra.css"]
@@ -33,8 +50,8 @@ extra_javascript = [
 ]
 [project.theme]
 # variant = "classic"
-# custom_dir = "overrides"
-# favicon = "images/favicon.png"
+custom_dir = "overrides"
+favicon = "images/f.png"
 language = "zh"
 features = [
   "announce.dismiss",
@@ -129,3 +146,16 @@ pymdownx.tabbed.alternate_style = true
 pymdownx.tabbed.combine_header_slug = true
 pymdownx.tasklist.custom_checkbox = true
 pymdownx.tilde = {}
+
+
+[project.plugins]
+tags = {}
+
+[project.extra.tags]
+Cpp = "C++"
+Rust = "Rust"
+Python = "Python"
+PS = "PowerShell"
+HTML5 = "html"
+JavaScript = "js"
+CSS = "css"
